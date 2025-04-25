@@ -36,11 +36,11 @@ if uploaded_file is not None:
         user_text = recognizer.recognize_google(audio)
         st.write(f"Recognized Text: {user_text}")
 
-        # Send the recognized text to the AI model for a response using chat()
-        response = genai.chat(messages=[{"role": "user", "content": user_text}])
+        # Send the recognized text to the AI model for a response using generate_text
+        response = genai.generate_text(prompt=user_text)
 
         # Show the response from the AI
-        response_text = response["message"]["content"]
+        response_text = response["text"]
         st.write(f"AI Response: {response_text}")
 
         # Convert the AI response to speech
