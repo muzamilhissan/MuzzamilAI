@@ -5,7 +5,7 @@ import os
 import google.generativeai as genai
 
 # Google Generative AI Setup (replace with your API key)
-api_key = "YOUR_GOOGLE_API_KEY"  # Replace with your API key
+api_key = "YOUR_GOOGLE_API_KEY"  # Replace with your actual API key
 genai.configure(api_key=api_key)
 
 # Function to convert text to speech using gTTS
@@ -37,11 +37,10 @@ if uploaded_file is not None:
         st.write(f"Recognized Text: {user_text}")
 
         # Send the recognized text to the AI model for a response
-        chat_model = genai.ChatModel.from_pretrained("models/chat-bison")  # Example model (replace with valid model)
-        response = chat_model.send_message(user_text)
+        response = genai.generate_text(prompt=user_text)
 
         # Show the response from the AI
-        response_text = response.text
+        response_text = response.result
         st.write(f"AI Response: {response_text}")
 
         # Convert the AI response to speech
