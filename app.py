@@ -1,44 +1,52 @@
 import streamlit as st
 import speech_recognition as sr
-import pyttsx3
-import google.generativeai as genai
+from gtts import gTTS
 import os
+import google.generativeai as genai
 
-# Your API key from https://makersuite.google.com/app/apikey
-GEMINI_API_KEY = "AIzaSyALowN1vb7OcYmbkvUdnyboC_MeX5jGWYQ"
-genai.configure(api_key=GEMINI_API_KEY)
+# Google Generative AI Setup (replace with your API key)
+api_key = "AIzaSyALowN1vb7OcYmbkvUdnyboC_MeX5jGWYQ"  # Replace with your API key
+genai.configure(api_key=api_key)
 
-st.title("Talk to AI by Muzzamil")
+# Function to convert text to speech using gTTS
+def speak(text):
+    tts = gTTS(text=text, lang='en', slow=False)
+    tts.save("output.mp3")
+    os.system("start output.mp3")  # For Windows, Streamlit will stream this audio file
 
-# Initialize TTS engine
-engine = pyttsx3.init()
+# Streamlit UI
+st.title("Speech-to-Text with AI Response and TTS")
+st.write("Speak to the app, and it will respond with speech!")
 
-# Create a chat model (this avoids the error you had)
-chat_model = genai.GenerativeModel("gemini-2.0-flash").start_chat(history=[])
-
-if st.button("Start Talking"):
+# Button to start speech recognition
+if st.button('Start Recording'):
     recognizer = sr.Recognizer()
+
     with sr.Microphone() as source:
-        st.info("🎙️ Listening...")
+        st.write("Listening... Speak now.")
+        recognizer.adjust_for_ambient_noise(source)  # Adjust for ambient noise
         audio = recognizer.listen(source)
-        st.success("✅ Got it! Transcribing...")
 
-        try:
-            # Speech to text
-            user_text = recognizer.recognize_google(audio)
-            st.text_area("You said:", user_text)
+    try:
+        # Recognize speech and convert to text
+        user_text = recognizer.recognize_google(audio)
+        st.write(f"Recognized Text: {user_text}")
 
-            # Send to Gemini
-            st.info("Muzzamil is Thinking")
-            response = chat_model.send_message(user_text)
-            ai_reply = response.text
-            st.text_area("Muzzamil Replied:", ai_reply)
+        # Send the recognized text to the AI model for a response (replace with your chosen model)
+        chat_model = genai.ChatModel.from_pretrained("models/chat-bison")  # Example model (replace with valid model)
+        response = chat_model.send_message(user_text)
 
-            # Text to speech
-            engine.say(ai_reply)
-            engine.runAndWait()
+        # Show the response from the AI
+        response_text = response.text
+        st.write(f"AI Response: {response_text}")
 
-        except sr.UnknownValueError:
-            st.error("Could not understand audio.")
-        except sr.RequestError as e:
-            st.error(f"Error with recognition service: {e}")
+        # Convert the AI response to speech
+        speak(response_text)
+
+    except sr.UnknownValueError:
+        st.error("Sorry, I could not understand the speech.")
+    except sr.RequestError:
+        st.error("Sorry, the speech recognition service is down.")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+
