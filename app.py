@@ -5,7 +5,7 @@ import os
 import google.generativeai as genai
 
 # Google Generative AI Setup (replace with your API key)
-api_key = "AIzaSyALowN1vb7OcYmbkvUdnyboC_MeX5jGWYQ"  # Replace with your API key
+api_key = "YOUR_GOOGLE_API_KEY"  # Replace with your API key
 genai.configure(api_key=api_key)
 
 # Function to convert text to speech using gTTS
@@ -16,23 +16,27 @@ def speak(text):
 
 # Streamlit UI
 st.title("Speech-to-Text with AI Response and TTS")
-st.write("Speak to the app, and it will respond with speech!")
+st.write("Upload an audio file, and the app will transcribe it and respond with speech!")
 
-# Button to start speech recognition
-if st.button('Start Recording'):
+# Upload audio file
+uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3"])
+
+if uploaded_file is not None:
+    st.write("File uploaded successfully!")
+
+    # Initialize recognizer
     recognizer = sr.Recognizer()
 
-    with sr.Microphone() as source:
-        st.write("Listening... Speak now.")
-        recognizer.adjust_for_ambient_noise(source)  # Adjust for ambient noise
-        audio = recognizer.listen(source)
+    # Process the audio file
+    with sr.AudioFile(uploaded_file) as source:
+        audio = recognizer.record(source)
 
     try:
         # Recognize speech and convert to text
         user_text = recognizer.recognize_google(audio)
         st.write(f"Recognized Text: {user_text}")
 
-        # Send the recognized text to the AI model for a response (replace with your chosen model)
+        # Send the recognized text to the AI model for a response
         chat_model = genai.ChatModel.from_pretrained("models/chat-bison")  # Example model (replace with valid model)
         response = chat_model.send_message(user_text)
 
@@ -49,4 +53,3 @@ if st.button('Start Recording'):
         st.error("Sorry, the speech recognition service is down.")
     except Exception as e:
         st.error(f"An error occurred: {e}")
-
