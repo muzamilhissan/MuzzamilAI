@@ -12,14 +12,13 @@ genai.configure(api_key=api_key)
 # Specify the model name (Gemini 2.0 Flash)
 model_name = "gemini-2.0-flash"  # Model you want to use
 
-# Speech-to-text function using the microphone
-def speech_to_text():
+# Speech-to-text function for audio file uploads
+def speech_to_text(audio_file):
     recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.info("Listening for your speech...")
-        audio = recognizer.listen(source)
     try:
-        st.info("Recognizing speech...")
+        # Recognize speech from the uploaded file
+        with sr.AudioFile(audio_file) as source:
+            audio = recognizer.record(source)  # Capture the audio from the file
         text = recognizer.recognize_google(audio)
         st.success(f"Recognized Text: {text}")
         return text
@@ -54,9 +53,15 @@ def text_to_speech(text):
 def main():
     st.title("Speech to Text, Text Generation & Speech Response App")
 
-    # Option to record speech
-    if st.button("Record Speech"):
-        recognized_text = speech_to_text()
+    # Option to upload an audio file
+    audio_file = st.file_uploader("Upload an audio file", type=["wav", "mp3"])
+    
+    if audio_file is not None:
+        # Display the uploaded file
+        st.audio(audio_file, format="audio/wav")
+
+        # Convert speech to text
+        recognized_text = speech_to_text(audio_file)
         if recognized_text:
             # Send recognized text to Gemini model and get response
             generated_text = generate_text_from_gemini(recognized_text)
