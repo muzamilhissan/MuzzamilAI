@@ -5,7 +5,7 @@ import google.generativeai as genai
 import os
 
 # Configure API key for Google Generative AI
-api_key = "YOUR_GOOGLE_API_KEY"  # Replace with your actual API key
+api_key = "AIzaSyALowN1vb7OcYmbkvUdnyboC_MeX5jGWYQ"  # Replace with your actual API key
 genai.configure(api_key=api_key)
 
 # Specify the model name (Gemini 2.0 Flash)
