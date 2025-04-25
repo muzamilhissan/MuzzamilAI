@@ -1,8 +1,9 @@
 import streamlit as st
-import pyttsx3
 import speech_recognition as sr
 import google.generativeai as genai
+from gtts import gTTS
 import os
+import tempfile
 
 # Configure API key for Google Generative AI
 api_key = "AIzaSyALowN1vb7OcYmbkvUdnyboC_MeX5jGWYQ"  # Replace with your actual API key
@@ -10,9 +11,6 @@ genai.configure(api_key=api_key)
 
 # Specify the model name (Gemini 2.0 Flash)
 model_name = "gemini-2.0-flash"  # Model you want to use
-
-# Initialize pyttsx3 for text-to-speech
-engine = pyttsx3.init()
 
 # Speech-to-text function using the microphone
 def speech_to_text():
@@ -40,10 +38,17 @@ def generate_text_from_gemini(prompt):
         st.error(f"An error occurred while generating text: {e}")
         return None
 
-# Convert text to speech
+# Convert text to speech using gTTS
 def text_to_speech(text):
-    engine.say(text)
-    engine.runAndWait()
+    try:
+        tts = gTTS(text)
+        # Save the speech as an audio file
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file_path = temp_file.name + ".mp3"
+            tts.save(temp_file_path)
+            st.audio(temp_file_path, format='audio/mp3')
+    except Exception as e:
+        st.error(f"An error occurred while converting text to speech: {e}")
 
 # Streamlit app UI
 def main():
