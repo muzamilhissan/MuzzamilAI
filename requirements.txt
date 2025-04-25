@@ -2,3 +2,4 @@ streamlit
 pyttsx3
 SpeechRecognition
 google-generativeai
+gTTS
